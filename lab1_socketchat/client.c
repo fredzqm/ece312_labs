@@ -12,6 +12,7 @@
 
 int running = 1;
 int sock;
+char ip[MAX_STRING_LEN];
 
 int main(int argc, char *argv[])
 {
@@ -25,6 +26,7 @@ int main(int argc, char *argv[])
     parseArgs(argc, argv, &serv_name, &serv_port);
 
     sock = connectSocket(serv_name, serv_port);
+    printf("Connection established with %s\n", ip);
 
     char input_string[MAX_STRING_LEN];
     printf("Provide user name: ");
@@ -136,7 +138,6 @@ int hostname_to_ip(char * hostname , char* ip)
          
     if ( (he = gethostbyname( hostname ) ) == NULL) 
     {
-        // get the host info
         herror("gethostbyname");
         return 1;
     }
@@ -146,10 +147,9 @@ int hostname_to_ip(char * hostname , char* ip)
     for(i = 0; addr_list[i] != NULL; i++) 
     {
         //Return the first one;
-        strcpy(ip , inet_ntoa(*addr_list[i]) );
+        ;
         return 0;
     }
-     
     return 1;
 }
 
@@ -161,5 +161,8 @@ unsigned long resolve_name (char name[])
     fprintf(stderr, "gethostbyname() failed");
     exit(1);
   }
+
+  struct in_addr ** addr_list = (struct in_addr **) host->h_addr_list;
+  strcpy(ip , inet_ntoa(*addr_list[0]));
   return *((unsigned long *)host->h_addr_list[0]);
 }

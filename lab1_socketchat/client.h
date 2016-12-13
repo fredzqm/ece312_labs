@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 void parseArgs(int argc, char** argv, char** hostName, int* port);
 int connectSocket(char* serv_name, int serv_port);

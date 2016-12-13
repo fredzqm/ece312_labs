@@ -17,6 +17,7 @@ typedef struct {
     int index;
     pthread_t tid;
     int cid;
+    char name[MAX_STRING_LEN];
 } thread_data;
 
 void parseArgs(int argc, char** argv, int* port);

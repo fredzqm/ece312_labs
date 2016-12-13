@@ -26,28 +26,23 @@ int main(int argc, char *argv[])
 
     sock = connectSocket(serv_name, serv_port);
 
-    pthread_t pid;
-    if (pthread_create(&pid, NULL, dataReciever, NULL)) {
-        perror("Thread not created");
-        exit(0);
+    char input_string[MAX_STRING_LEN];
+    printf("Provide user name: ");
+    fgets(input_string, MAX_STRING_LEN, stdin);
+    input_string[strlen(input_string)-1] = 0;
+    if (send(sock , input_string , strlen(input_string) , 0 ) < 0){
+        die_with_error("send name not successful");
     }
 
+    pthread_t pid;
+    if (pthread_create(&pid, NULL, dataReciever, NULL)) {
+        die_with_error("Thread not created");
+    }
 
     while (running) { /* run until user enters "." to quit. */
-        char input_string[MAX_STRING_LEN];
-        char received_string[MAX_STRING_LEN];
-        int received_bytes = 0;
-        /* Prompt user for string to echo and read in the string.
-         *  String may have spaces.
-         */
         fgets(input_string, MAX_STRING_LEN, stdin);
-        input_string[strlen(input_string)-1] = '\0';
-
-        /* Send string to server */
-        if(send(sock , input_string , strlen(input_string) , 0 ) < 0){
-            break;
-        }
-   
+        input_string[strlen(input_string)-1] = 0;
+        send(sock , input_string , strlen(input_string) , 0 );
     }
 
     if (pthread_join(pid, NULL)) {
@@ -66,8 +61,6 @@ void *dataReciever(void* arg) {
         if (received_bytes <= 0)
             break;
         received_string[received_bytes] = 0;
-        // if (strcmp("exit", received_string))
-        //     break;
         printf("%s\n", received_string);
     }
     running = 0;

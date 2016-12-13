@@ -48,7 +48,6 @@ int main(int argc, char** argv)
         /* Initialize thread with id number and pointer to file descriptor */
         ls[len].index = len;
         ls[len].cid = cid;
-        printf("OK    %d",  &(ls[len]) - ls);
         /* Spawn thread */
         if (pthread_create(&ls[len].tid, NULL, thread_func, (void *) &ls[len])) {
             perror("Thread not created");
@@ -74,13 +73,16 @@ int main(int argc, char** argv)
 
 int recievedDataFrom(int from, char* message) {
     int i;
+    char sent[MAX_STRING_LEN];
+    sprintf(sent, "<%s> %s", ls[from].name, message);
     for (i = 1; i < len; i++) {
         if (from != i) {
-            send(ls[i].cid , message , strlen(message) , 0 );
+            send(ls[i].cid , sent , strlen(sent) , 0 );
+            // send(ls[i].cid , sent , strlen(sent) , 0 );
         }
     }
     if (from != 0) {
-        printf("%s\n", message);
+        printf("%s\n", sent);
     }
     return 0;
 }
@@ -91,12 +93,16 @@ void *thread_func(void *data_struct)
     int index = data->index;
     int cid = data->cid;
 
+    int numBytes = recv(cid , data->name , MAX_STRING_LEN , 0);
+    if (numBytes <= 0)
+        die_with_error("Recieve name not sucessful");
+
     while(1){
         char received_string[MAX_STRING_LEN];
-        int received_bytes = recv(cid , &received_string , MAX_STRING_LEN , 0);
-        if (received_bytes <= 0)
+        int numBytes = recv(cid , &received_string , MAX_STRING_LEN , 0);
+        if (numBytes <= 0)
             break;
-        received_string[received_bytes] = 0;
+        received_string[numBytes] = 0;
         if (recievedDataFrom(index, received_string))
             break;
     }
@@ -111,12 +117,16 @@ void *server_func(void *data_struct)
     thread_data* data = (thread_data*) data_struct;
     int index = data->index;
 
+    printf("Provide user name: ");
+    fgets(data->name, MAX_STRING_LEN, stdin);
+    data->name[strlen(data->name)-1] = 0;
+
     while(1){
-        char received_string[MAX_STRING_LEN];
+        char input_string[MAX_STRING_LEN];
         size_t size;
-        fgets(received_string, MAX_STRING_LEN, stdin);
-        received_string[strlen(received_string)-1] = '\0';
-        if (recievedDataFrom(index, received_string))
+        fgets(input_string, MAX_STRING_LEN, stdin);
+        input_string[strlen(input_string)-1] = 0;
+        if (recievedDataFrom(index, input_string))
             break;
     }
     printf("disconnected!\n");

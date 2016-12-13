@@ -9,7 +9,6 @@
 #define MAX_STRING_LEN 100 /* Maximum length of string to echo */
 #define DEFAULT_SERVE_NAME "localhost"
 
-
 int running = 1;
 
 int main(int argc, char *argv[])
@@ -24,9 +23,7 @@ int main(int argc, char *argv[])
     printf("Connection established with %s\n", ip);
 
     char input_string[MAX_STRING_LEN];
-    printf("Provide user name: ");
-    fgets(input_string, MAX_STRING_LEN, stdin);
-    input_string[strlen(input_string)-1] = 0;
+    requestName(input_string);
     if (send(sock , input_string , strlen(input_string) , 0 ) < 0)
         die_with_error("send name not successful");
 
@@ -49,13 +46,13 @@ int main(int argc, char *argv[])
 
 void *dataReciever(void* arg) {
     int sock = *((int*)arg);
+    char received_string[MAX_STRING_LEN];
     while(1){
-        char received_string[MAX_STRING_LEN];
         int received_bytes = recv(sock , &received_string , MAX_STRING_LEN , 0);
         if (received_bytes <= 0)
             break;
         received_string[received_bytes] = 0;
-        printf("%s\n", received_string);
+        printRecievedMessage(received_string);
     }
     running = 0;
     pthread_exit(NULL);

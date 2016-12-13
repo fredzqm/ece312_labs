@@ -71,11 +71,10 @@ int recievedDataFrom(int from, char* message) {
     for (i = 1; i < len; i++) {
         if (from != i) {
             send(ls[i].cid , sent , strlen(sent) , 0 );
-            // send(ls[i].cid , sent , strlen(sent) , 0 );
         }
     }
     if (from != 0) {
-        printf("%s\n", sent);
+        printRecievedMessage(sent);
     }
     return 0;
 }

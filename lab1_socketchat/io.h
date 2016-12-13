@@ -5,3 +5,4 @@
 
 void readMessage(char* buffer);
 void requestName(char* buffer);
+void printRecievedMessage(char* message);

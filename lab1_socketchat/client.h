@@ -18,3 +18,4 @@ void usage();
 void die_with_error(char *error_message);
 unsigned long resolve_name (char name[]);
 
+void *dataReciever(void* arg);

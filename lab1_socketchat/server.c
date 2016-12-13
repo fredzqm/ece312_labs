@@ -14,7 +14,7 @@ int main(int argc, char** argv)
     parseArgs(argc, argv, &serv_port);  /* Server port */
     int sock = initializeSocket(serv_port);
 
-    len = 0; cap = 5;
+    len = 1; cap = 5;
     ls = (thread_data*) malloc(sizeof(thread_data) * cap);
     if (ls == NULL) {
         die_with_error("malloc fails");
@@ -48,7 +48,7 @@ int main(int argc, char** argv)
         /* Initialize thread with id number and pointer to file descriptor */
         ls[len].index = len;
         ls[len].cid = cid;
-
+        printf("OK    %d",  &(ls[len]) - ls);
         /* Spawn thread */
         if (pthread_create(&ls[len].tid, NULL, thread_func, (void *) &ls[len])) {
             perror("Thread not created");
@@ -73,7 +73,6 @@ int main(int argc, char** argv)
 }
 
 int recievedDataFrom(int from, char* message) {
-    // printf("reciving: %s (len: %d) from %d\n", message, strlen(message), from);
     int i;
     for (i = 1; i < len; i++) {
         if (from != i) {
@@ -95,11 +94,9 @@ void *thread_func(void *data_struct)
     while(1){
         char received_string[MAX_STRING_LEN];
         int received_bytes = recv(cid , &received_string , MAX_STRING_LEN , 0);
-        if (received_bytes < 0)
-            continue;
+        if (received_bytes <= 0)
+            break;
         received_string[received_bytes] = 0;
-        printf("recieving %s\n", received_string);
-        printf("  %d  %d %d\n", received_bytes, index , len);
         if (recievedDataFrom(index, received_string))
             break;
     }
@@ -113,17 +110,15 @@ void *server_func(void *data_struct)
 {
     thread_data* data = (thread_data*) data_struct;
     int index = data->index;
-    int cid = data->cid;
 
     while(1){
         char received_string[MAX_STRING_LEN];
         size_t size;
-        printf("%s", getline(received_string, &size, stdin));
-        printf("  %d\n", size);
+        fgets(received_string, MAX_STRING_LEN, stdin);
+        received_string[strlen(received_string)-1] = '\0';
         if (recievedDataFrom(index, received_string))
             break;
     }
-    close(cid);
     printf("disconnected!\n");
     
     pthread_exit(NULL);

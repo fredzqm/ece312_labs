@@ -16,53 +16,46 @@ int main(int argc, char** argv)
 
     len = 1; cap = 5;
     ls = (thread_data*) malloc(sizeof(thread_data) * cap);
-    if (ls == NULL) {
+    if (ls == NULL)
         die_with_error("malloc fails");
-    }
+
     /* This thread is responsible for handling inputs from the server */
     ls[0].index = 0;
     ls[0].cid = 0;
 
     /* Spawn thread */
-    if (pthread_create(&ls[0].tid, NULL, server_func, (void *) ls)) {
-        perror("Thread not created");
-        exit(0);
-    }
+    if (pthread_create(&ls[0].tid, NULL, server_func, (void *) ls))
+        die_with_error("Thread not created");
 
     while(running) { /* run forever */
         struct sockaddr addr;
         socklen_t addrlen;
         /* Create a client socket for an accepted connection */
         int cid = accept(sock , &addr , &addrlen );
-        if (cid <= 0) {
+        if (cid <= 0)
             die_with_error("accept error");
-        }
 
         if (len + 1 == cap) {
             cap = cap*2;
             ls = (thread_data*) realloc(ls, sizeof(thread_data) * cap);
-            if (ls == NULL) {
+            if (ls == NULL)
                 die_with_error("malloc fails");
-            }
         }
         /* Initialize thread with id number and pointer to file descriptor */
         ls[len].index = len;
         ls[len].cid = cid;
         /* Spawn thread */
-        if (pthread_create(&ls[len].tid, NULL, thread_func, (void *) &ls[len])) {
-            perror("Thread not created");
-            exit(0);
-        }
+        if (pthread_create(&ls[len].tid, NULL, thread_func, (void *) &ls[len]))
+            die_with_error("Thread not created");
         len++;
     }
     
     /* Check status of thread */
     while (len > 0) {
         len--;
-        if (pthread_join(ls[len].tid, NULL)) {
-            printf("pthread_join() failed\n");
-            exit(-1);
-        }
+        close(ls[len].cid);
+        if (pthread_join(ls[len].tid, NULL))
+            die_with_error("pthread_join() failed\n");
     }
 
     /* Close the welcome socket */

@@ -1,4 +1,5 @@
 #include <arpa/inet.h>
+#include <pthread.h>
 #include <dirent.h>
 #include <errno.h>
 #include <netdb.h>
@@ -12,12 +13,9 @@
 #include <arpa/inet.h>
 
 void parseArgs(int argc, char** argv, char** hostName, int* port);
-int connectSocket(char* serv_name, int serv_port);
-
-
+int connectSocket(char* serv_name, int serv_port, char* ip);
 
 void usage();
 void die_with_error(char *error_message);
-unsigned long resolve_name (char name[]);
 
 void *dataReciever(void* arg);

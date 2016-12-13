@@ -11,35 +11,28 @@
 
 
 int running = 1;
-int sock;
-char ip[MAX_STRING_LEN];
 
 int main(int argc, char *argv[])
 {
-    /* Parse command line arguments */
-    if (argc < 2) {
-        usage();
-    }
-
-    int serv_port = DEFAULTPORT;         /* Server port */
+    int serv_port = DEFAULTPORT;                           /* Server port */
     char* serv_name = DEFAULT_SERVE_NAME;                  /* Server host name */
+    char ip[MAX_STRING_LEN];
+    
+    /* Parse command line arguments */
     parseArgs(argc, argv, &serv_name, &serv_port);
-
-    sock = connectSocket(serv_name, serv_port);
+    int sock = connectSocket(serv_name, serv_port, ip);
     printf("Connection established with %s\n", ip);
 
     char input_string[MAX_STRING_LEN];
     printf("Provide user name: ");
     fgets(input_string, MAX_STRING_LEN, stdin);
     input_string[strlen(input_string)-1] = 0;
-    if (send(sock , input_string , strlen(input_string) , 0 ) < 0){
+    if (send(sock , input_string , strlen(input_string) , 0 ) < 0)
         die_with_error("send name not successful");
-    }
 
     pthread_t pid;
-    if (pthread_create(&pid, NULL, dataReciever, NULL)) {
+    if (pthread_create(&pid, NULL, dataReciever, &sock))
         die_with_error("Thread not created");
-    }
 
     while (running) { /* run until user enters "." to quit. */
         fgets(input_string, MAX_STRING_LEN, stdin);
@@ -47,16 +40,16 @@ int main(int argc, char *argv[])
         send(sock , input_string , strlen(input_string) , 0 );
     }
 
-    if (pthread_join(pid, NULL)) {
-        printf("pthread_join() failed\n");
-        exit(-1);
-    }
+    if (pthread_join(pid, NULL))
+        die_with_error("pthread_join() failed\n");
+
     /* Close socket */
     fprintf(stdout, "closing");
     close(sock);
 }
 
 void *dataReciever(void* arg) {
+    int sock = *((int*)arg);
     while(1){
         char received_string[MAX_STRING_LEN];
         int received_bytes = recv(sock , &received_string , MAX_STRING_LEN , 0);
@@ -89,24 +82,30 @@ void parseArgs(int argc, char** argv, char** hostName, int* port) {
     }
 }
 
-int connectSocket(char* serv_name, int serv_port) {
+int connectSocket(char* serv_name, int serv_port, char* ip) {
     /* Create a TCP socket */
     int sock;                                       /* Socket  */
-    if((sock = socket(AF_INET , SOCK_STREAM , 0 ) ) < 0){
+    if((sock = socket(AF_INET , SOCK_STREAM , 0 ) ) < 0)
         die_with_error("socket error");
-    }
 
-    struct sockaddr_in serv_addr;                   /* Server address */
+    /* parse the host name */
+    struct hostent *host;
+    if ((host=gethostbyname(serv_name)) == NULL)
+        die_with_error("gethostbyname() failed");
+    struct in_addr ** addr_list = (struct in_addr **) host->h_addr_list;
+    strcpy(ip , inet_ntoa(*addr_list[0]));
+    unsigned long s_addr = *((unsigned long *)host->h_addr_list[0]);
+
     /* Construct local address structure */
+    struct sockaddr_in serv_addr;                   /* Server address */
     memset(&serv_addr, 0, sizeof(serv_addr));       /* Zero out structure */
     serv_addr.sin_family = AF_INET;                 /* Internet address family */
-    serv_addr.sin_addr.s_addr = resolve_name(serv_name); /* Server address */
+    serv_addr.sin_addr.s_addr = s_addr; /* Server address */
     serv_addr.sin_port = htons(serv_port);          /* Local port */
 
     /* Connect to server socket */
-    if (connect(sock , (struct sockaddr*) &serv_addr , sizeof(serv_addr) ) != 0){
+    if (connect(sock , (struct sockaddr*) &serv_addr , sizeof(serv_addr) ) != 0)
         die_with_error("connect error");
-    }
     return sock;
 }
 
@@ -128,41 +127,8 @@ void usage()
   exit(1);
 }
 
-
-
-int hostname_to_ip(char * hostname , char* ip)
-{
-    struct hostent *he;
-    struct in_addr **addr_list;
-    int i;
-         
-    if ( (he = gethostbyname( hostname ) ) == NULL) 
-    {
-        herror("gethostbyname");
-        return 1;
-    }
- 
-    addr_list = (struct in_addr **) he->h_addr_list;
-     
-    for(i = 0; addr_list[i] != NULL; i++) 
-    {
-        //Return the first one;
-        ;
-        return 0;
-    }
-    return 1;
-}
-
 /* resolve_name - convert a host name to an IP address */
 unsigned long resolve_name (char name[])
 {
-  struct hostent *host;
-  if ((host=gethostbyname(name)) == NULL) {
-    fprintf(stderr, "gethostbyname() failed");
-    exit(1);
-  }
 
-  struct in_addr ** addr_list = (struct in_addr **) host->h_addr_list;
-  strcpy(ip , inet_ntoa(*addr_list[0]));
-  return *((unsigned long *)host->h_addr_list[0]);
 }

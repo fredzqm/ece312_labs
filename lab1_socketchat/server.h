@@ -25,4 +25,7 @@ int initializeSocket(int serv_port);
 void die_with_error(char *errorMessage);
 void usage();
 
+int recievedDataFrom(int from, char* message);
+
 void *thread_func(void *arg);
+void *server_func(void *arg);

@@ -16,6 +16,18 @@ int main(int argc, char** argv)
 
     len = 0; cap = 5;
     ls = (thread_data*) malloc(sizeof(thread_data) * cap);
+    if (ls == NULL) {
+        die_with_error("malloc fails");
+    }
+    /* This thread is responsible for handling inputs from the server */
+    // ls[0].index = 0;
+    // ls[0].cid = 0;
+
+    // /* Spawn thread */
+    // if (pthread_create(&ls[0].tid, NULL, server_func, (void *) ls)) {
+    //     perror("Thread not created");
+    //     exit(0);
+    // }
 
     // array = ((int *)malloc(num * sizeof(int)));
     while(running) { /* run forever */
@@ -30,6 +42,9 @@ int main(int argc, char** argv)
         if (len + 1 == cap) {
             cap = cap*2;
             ls = (thread_data*) realloc(ls, sizeof(thread_data) * cap);
+            if (ls == NULL) {
+                die_with_error("malloc fails");
+            }
         }
         /* Initialize thread with id number and pointer to file descriptor */
         ls[len].index = len;
@@ -58,22 +73,36 @@ int main(int argc, char** argv)
     close(sock);
 }
 
+int recievedDataFrom(int from, char* message) {
+    // printf("reciving: %s (len: %d) from %d\n", message, strlen(message), from);
+    int i;
+    for (i = 1; i < len; i++) {
+        if (from != i) {
+            send(ls[i].cid , message , strlen(message) , 0 );
+        }
+    }
+    // if (from != 0) {
+    //     printf("%s\n", message);
+    // }
+    return 0;
+}
+
 void *thread_func(void *data_struct)
 {
     thread_data* data = (thread_data*) data_struct;
+    int index = data->index;
     int cid = data->cid;
 
     while(1){
         char received_string[MAX_STRING_LEN];
         int received_bytes = recv(cid , &received_string , MAX_STRING_LEN , 0);
-        if(received_bytes < 0){
-            break;
-        }
+        if (received_bytes < 0)
+            continue;
         received_string[received_bytes] = 0;
-        printf("reciving: %s\n", received_string);
-        if(send(cid , &received_string , strlen(received_string) , 0 ) < 0){
+        printf("recieving %s\n", received_string);
+        printf("  %d  %d %d\n", received_bytes, index , len);
+        if (recievedDataFrom(index, received_string))
             break;
-        }
     }
     close(cid);
     printf("disconnected!\n");
@@ -81,6 +110,25 @@ void *thread_func(void *data_struct)
     pthread_exit(NULL);
 }
 
+void *server_func(void *data_struct)
+{
+    thread_data* data = (thread_data*) data_struct;
+    int index = data->index;
+    int cid = data->cid;
+
+    while(1){
+        char received_string[MAX_STRING_LEN];
+        size_t size;
+        printf("%s", getline(received_string, &size, stdin));
+        printf("  %d\n", size);
+        if (recievedDataFrom(index, received_string))
+            break;
+    }
+    close(cid);
+    printf("disconnected!\n");
+    
+    pthread_exit(NULL);
+}
 
 /*
     initialize serv_port based on arguments

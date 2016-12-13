@@ -2,14 +2,18 @@
 
 CC = gcc
 CFLAGS = -g -std=gnu99 -O -Wall -pthread -Wfatal-errors
+DEPS = io.h client.h server.h
 
 all: client server
 
-client: client.c client.h
-	$(CC) $(CFLAGS) -o client client.c client.h
+%.o: %.c ${DEPS}
+	$(CC) -c -o $@ $< $(CFLAGS)
 
-server: server.c server.h
-	$(CC) $(CFLAGS) -o server server.c server.h
+client: client.o io.o
+	$(CC) $(CFLAGS) client.o io.o > client 
+
+server: server.o io.o
+	$(CC) $(CFLAGS) server.o io.o > server
 
 clean:
 	rm -f *.o client server

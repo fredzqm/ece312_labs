@@ -35,8 +35,7 @@ int main(int argc, char *argv[])
         die_with_error("Thread not created");
 
     while (running) { /* run until user enters "." to quit. */
-        fgets(input_string, MAX_STRING_LEN, stdin);
-        input_string[strlen(input_string)-1] = 0;
+        readMessage(input_string);
         send(sock , input_string , strlen(input_string) , 0 );
     }
 
@@ -125,10 +124,4 @@ void usage()
   fprintf(stderr, "-h for server name\n");
   fprintf(stderr, "-p for server port\n");
   exit(1);
-}
-
-/* resolve_name - convert a host name to an IP address */
-unsigned long resolve_name (char name[])
-{
-
 }

@@ -110,15 +110,12 @@ void *server_func(void *data_struct)
     thread_data* data = (thread_data*) data_struct;
     int index = data->index;
 
-    printf("Provide user name: ");
-    fgets(data->name, MAX_STRING_LEN, stdin);
-    data->name[strlen(data->name)-1] = 0;
+    requestName(data->name);
 
     while(1){
         char input_string[MAX_STRING_LEN];
         size_t size;
-        fgets(input_string, MAX_STRING_LEN, stdin);
-        input_string[strlen(input_string)-1] = 0;
+        readMessage(input_string);
         if (recievedDataFrom(index, input_string))
             break;
     }
@@ -166,13 +163,11 @@ int initializeSocket(int serv_port) {
     serv_addr.sin_port = htons(serv_port);         /* Local port */
 
     /* Bind to the local address */
-    if( bind(sock , (struct sockaddr*)&serv_addr , sizeof(serv_addr)) != 0){
+    if( bind(sock , (struct sockaddr*)&serv_addr , sizeof(serv_addr)) != 0)
         die_with_error("bind error");
-    }
     /* Wait for incoming requests */  
-    if( listen( sock , MAX_STRING_LEN ) != 0 ){
+    if( listen( sock , MAX_STRING_LEN ) != 0 )
         die_with_error("listen error");
-    }
     return sock;
 }
 

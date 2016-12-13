@@ -12,6 +12,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include "io.h"
+
 void parseArgs(int argc, char** argv, char** hostName, int* port);
 int connectSocket(char* serv_name, int serv_port, char* ip);
 

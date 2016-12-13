@@ -20,16 +20,15 @@ int main(int argc, char** argv)
         die_with_error("malloc fails");
     }
     /* This thread is responsible for handling inputs from the server */
-    // ls[0].index = 0;
-    // ls[0].cid = 0;
+    ls[0].index = 0;
+    ls[0].cid = 0;
 
-    // /* Spawn thread */
-    // if (pthread_create(&ls[0].tid, NULL, server_func, (void *) ls)) {
-    //     perror("Thread not created");
-    //     exit(0);
-    // }
+    /* Spawn thread */
+    if (pthread_create(&ls[0].tid, NULL, server_func, (void *) ls)) {
+        perror("Thread not created");
+        exit(0);
+    }
 
-    // array = ((int *)malloc(num * sizeof(int)));
     while(running) { /* run forever */
         struct sockaddr addr;
         socklen_t addrlen;
@@ -51,7 +50,7 @@ int main(int argc, char** argv)
         ls[len].cid = cid;
 
         /* Spawn thread */
-        if (pthread_create(&ls[len].tid, NULL, thread_func, (void *) ls+len)) {
+        if (pthread_create(&ls[len].tid, NULL, thread_func, (void *) &ls[len])) {
             perror("Thread not created");
             exit(0);
         }
@@ -81,9 +80,9 @@ int recievedDataFrom(int from, char* message) {
             send(ls[i].cid , message , strlen(message) , 0 );
         }
     }
-    // if (from != 0) {
-    //     printf("%s\n", message);
-    // }
+    if (from != 0) {
+        printf("%s\n", message);
+    }
     return 0;
 }
 

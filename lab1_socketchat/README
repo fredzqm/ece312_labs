@@ -1,0 +1,29 @@
+#####################################################################
+# Source Files
+######################################################################
+
+This directory contains the files you will need for lab09
+
+client.c
+    This is the file you will be modifying to implement the client and
+    handing in.
+
+server.c
+    This is the file you will be modifying to implement the server and
+    handing in.
+
+###############################################
+# You shouldn't modify any of these files below
+###############################################
+
+client_reference
+    A reference implementation of the client program
+
+server_reference
+    A reference implementation of the server program
+
+Makefile:
+    This is the makefile that builds the client and server program.
+
+README:
+    This file itself.

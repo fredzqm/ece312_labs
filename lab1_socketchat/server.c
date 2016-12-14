@@ -70,13 +70,12 @@ int recievedDataFrom(int from, char* message) {
     sprintf(sent, "<%s> %s", ls[from].name, message);
     for (i = 1; i < len; i++) {
         if (from != i) {
-            send(ls[i].cid , sent , strlen(sent) , 0 );
+            sendMessage(ls[i].cid, sent);
         }
     }
     if (from != 0) {
         printRecievedMessage(sent);
     }
-    return 0;
 }
 
 void *thread_func(void *data_struct)
@@ -91,10 +90,8 @@ void *thread_func(void *data_struct)
 
     while(1){
         char received_string[MAX_STRING_LEN];
-        int numBytes = recv(cid , &received_string , MAX_STRING_LEN , 0);
-        if (numBytes <= 0)
+        if (recieveMessage(cid, received_string) < 0)
             break;
-        received_string[numBytes] = 0;
         if (recievedDataFrom(index, received_string))
             break;
     }
@@ -113,7 +110,6 @@ void *server_func(void *data_struct)
 
     while(1){
         char input_string[MAX_STRING_LEN];
-        size_t size;
         readMessage(input_string);
         if (recievedDataFrom(index, input_string))
             break;
@@ -174,10 +170,5 @@ void usage() {
     fprintf(stderr, "Usage: server [-u] [-p <port>]\n");
     fprintf(stderr, "-u for usage\n");
     fprintf(stderr, "-p for server port\n");
-    exit(1);
-}
-
-void die_with_error(char *errorMessage) {
-    perror(errorMessage);
     exit(1);
 }

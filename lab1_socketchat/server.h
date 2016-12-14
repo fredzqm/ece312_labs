@@ -25,7 +25,6 @@ typedef struct {
 void parseArgs(int argc, char** argv, int* port);
 int initializeSocket(int serv_port);
 
-void die_with_error(char *errorMessage);
 void usage();
 
 int recievedDataFrom(int from, char* message);

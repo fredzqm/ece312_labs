@@ -6,16 +6,15 @@
 #include "client.h"
 
 #define DEFAULTPORT 5555   /* Default port for socket connection */
-#define MAX_STRING_LEN 100 /* Maximum length of string to echo */
 #define DEFAULT_SERVE_NAME "localhost"
+#define IP_LENGTH 20 
 
 int running = 1;
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     int serv_port = DEFAULTPORT;                           /* Server port */
     char* serv_name = DEFAULT_SERVE_NAME;                  /* Server host name */
-    char ip[MAX_STRING_LEN];
+    char ip[IP_LENGTH];
     
     /* Parse command line arguments */
     parseArgs(argc, argv, &serv_name, &serv_port);
@@ -24,8 +23,7 @@ int main(int argc, char *argv[])
 
     char input_string[MAX_STRING_LEN];
     requestName(input_string);
-    if (send(sock , input_string , strlen(input_string) , 0 ) < 0)
-        die_with_error("send name not successful");
+    sendMessage(sock, input_string);
 
     pthread_t pid;
     if (pthread_create(&pid, NULL, dataReciever, &sock))
@@ -33,14 +31,14 @@ int main(int argc, char *argv[])
 
     while (running) { /* run until user enters "." to quit. */
         readMessage(input_string);
-        send(sock , input_string , strlen(input_string) , 0 );
+        sendMessage(sock, input_string);
     }
 
     if (pthread_join(pid, NULL))
         die_with_error("pthread_join() failed\n");
 
     /* Close socket */
-    fprintf(stdout, "closing");
+    printf("closing");
     close(sock);
 }
 
@@ -48,10 +46,8 @@ void *dataReciever(void* arg) {
     int sock = *((int*)arg);
     char received_string[MAX_STRING_LEN];
     while(1){
-        int received_bytes = recv(sock , &received_string , MAX_STRING_LEN , 0);
-        if (received_bytes <= 0)
+        if (recieveMessage(sock, received_string) < 0)
             break;
-        received_string[received_bytes] = 0;
         printRecievedMessage(received_string);
     }
     running = 0;
@@ -61,19 +57,19 @@ void *dataReciever(void* arg) {
 void parseArgs(int argc, char** argv, char** hostName, int* port) {
     int ch;
     while ((ch=getopt(argc, argv, "h:p:u")) != -1) {
-    switch (ch) {
-        case 'h':
-            *hostName = optarg;
-            printf("Using server %s\n", *hostName);
-            break;
-        case 'p':
-            *port = atoi(optarg);
-            printf("Using port %d\n", *port);
-            break;
-        case 'u':
-        default:
-            usage();
-            break;
+        switch (ch) {
+            case 'h':
+                *hostName = optarg;
+                printf("Using server %s\n", *hostName);
+                break;
+            case 'p':
+                *port = atoi(optarg);
+                printf("Using port %d\n", *port);
+                break;
+            case 'u':
+            default:
+                usage();
+                break;
         }
     }
 }
@@ -105,16 +101,9 @@ int connectSocket(char* serv_name, int serv_port, char* ip) {
     return sock;
 }
 
-void die_with_error(char *error_message)
-{
-  perror(error_message);
-  exit(1);
-}
-
 
 /* usage - print description of command arguments */
-void usage()
-{
+void usage() {
   fprintf(stderr, "Usage: client [-u] [-v] -h <server> [-p <port>]\n");
   fprintf(stderr, "-u for usage\n");
   fprintf(stderr, "-v for verbose mode\n");

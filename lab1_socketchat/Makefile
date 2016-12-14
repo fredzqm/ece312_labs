@@ -10,11 +10,11 @@ all: client server
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 client: client.o io.o
-	$(CC) $(CFLAGS) client.o io.o > client 
+	$(CC) $(CFLAGS) client.o io.o -o client 
 
 server: server.o io.o
-	$(CC) $(CFLAGS) server.o io.o > server
+	$(CC) $(CFLAGS) server.o io.o -o server
 
 clean:
-	rm -f *.o client server
+	rm -rf *.o client server *.gch a.out*
 	

@@ -64,10 +64,8 @@ int main(int argc, char** argv)
     close(sock);
 }
 
-int recievedDataFrom(int from, char* message) {
+void broadcast(int from, char* sent) {
     int i;
-    char sent[MAX_STRING_LEN];
-    sprintf(sent, "<%s> %s", ls[from].name, message);
     for (i = 1; i < len; i++) {
         if (from != i) {
             sendMessage(ls[i].cid, sent);
@@ -78,28 +76,40 @@ int recievedDataFrom(int from, char* message) {
     }
 }
 
+int recievedDataFrom(int from, char* message) {
+    char sent[MAX_STRING_LEN];
+    if (strcmp("exit", message) == 0) {
+        sprintf(sent, "<%s> exits the chat...", ls[from].name);
+        close(ls[from].cid);
+    } else {
+        sprintf(sent, "<%s> : %s", ls[from].name, message);
+    }
+    broadcast(from, sent);
+}
+
 void *thread_func(void *data_struct)
 {
     thread_data* data = (thread_data*) data_struct;
     int index = data->index;
     int cid = data->cid;
 
-    int numBytes = recv(cid , data->name , MAX_STRING_LEN , 0);
-    if (numBytes <= 0)
+    if (recieveMessage(cid, data->name))
         die_with_error("Recieve name not sucessful");
+    
+    char buffer[MAX_STRING_LEN];
+    sprintf(buffer, "<%s> is entering the chat", data->name);
+    broadcast(index, buffer);
 
     while(1){
-        char received_string[MAX_STRING_LEN];
-        if (recieveMessage(cid, received_string) < 0)
+        if (recieveMessage(cid, buffer) < 0)
             break;
-        if (recievedDataFrom(index, received_string))
+        if (recievedDataFrom(index, buffer))
             break;
     }
     close(cid);
-    printf("disconnected!\n");
-    
     pthread_exit(NULL);
 }
+
 
 void *server_func(void *data_struct)
 {
@@ -107,6 +117,7 @@ void *server_func(void *data_struct)
     int index = data->index;
 
     requestName(data->name);
+    strcpy(name, data->name);
 
     while(1){
         char input_string[MAX_STRING_LEN];

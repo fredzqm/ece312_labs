@@ -21,14 +21,14 @@ int main(int argc, char *argv[]) {
     int sock = connectSocket(serv_name, serv_port, ip);
     printf("Connection established with %s\n", ip);
 
-    char input_string[MAX_STRING_LEN];
-    requestName(input_string);
-    sendMessage(sock, input_string);
+    requestName(name);
+    sendMessage(sock, name);
 
     pthread_t pid;
     if (pthread_create(&pid, NULL, dataReciever, &sock))
         die_with_error("Thread not created");
 
+    char input_string[MAX_STRING_LEN];
     while (running) { /* run until user enters "." to quit. */
         readMessage(input_string);
         sendMessage(sock, input_string);
@@ -46,7 +46,7 @@ void *dataReciever(void* arg) {
     int sock = *((int*)arg);
     char received_string[MAX_STRING_LEN];
     while(1){
-        if (recieveMessage(sock, received_string) < 0)
+        if (recieveMessage(sock, received_string))
             break;
         printRecievedMessage(received_string);
     }

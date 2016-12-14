@@ -7,13 +7,21 @@ void requestName(char* buffer) {
     buffer[strlen(buffer)-1] = 0;
 }
 
+void printPrompt() {
+    printf("<%s> : ", name);
+    fflush(stdout);
+}
+
 void readMessage(char* buffer) {
+    printPrompt();
     fgets(buffer, MAX_STRING_LEN, stdin);
     buffer[strlen(buffer)-1] = 0;
 }
 
 void printRecievedMessage(char* message) {
-    printf("%s\n", message);
+    printf("\r                                           \r");
+    printf("%s\n", message, name);
+    printPrompt();
 }
 
 void sendMessage(int socket, char* message) {

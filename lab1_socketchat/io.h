@@ -13,3 +13,6 @@ int recieveMessage(int sock, char* buffer);
 
 
 void die_with_error(char *error_message);
+
+
+char name[MAX_STRING_LEN];

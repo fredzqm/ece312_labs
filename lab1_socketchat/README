@@ -3,27 +3,29 @@
 ######################################################################
 
 This directory contains the files you will need for lab09
+io.c
+    This file handles most of the IO in the program, including sending 
+    and recieving data, print recieved message and read input.
+    It encapulate these IO, so we can provide consistent format for both
+    server and client.
 
 client.c
-    This is the file you will be modifying to implement the client and
-    handing in.
+    This is the file containing client code. The client established 
+    the connection with the server. Then the user needs to enter his name.
+    Whenever it sends out the data user types, and prints out the message 
+    recieved.
 
 server.c
-    This is the file you will be modifying to implement the server and
-    handing in.
+    This is the file containing server code. The server tracks the socket, 
+    name for each client. It creates a thread for each client connect.
+    Whenever it takes some message, either from its own input or recieved 
+    data, it broadcast the message to every connected client. Essentially, 
+    this is a multi-person chat room.
 
 ###############################################
 # You shouldn't modify any of these files below
 ###############################################
 
-client_reference
-    A reference implementation of the client program
-
-server_reference
-    A reference implementation of the server program
-
 Makefile:
-    This is the makefile that builds the client and server program.
+    Run make to create executables.
 
-README:
-    This file itself.

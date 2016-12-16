@@ -6,7 +6,6 @@
 
 thread_data* ls;
 int len, cap;
-int running = 1;
 
 int main(int argc, char** argv)
 {
@@ -26,10 +25,10 @@ int main(int argc, char** argv)
     /* Spawn thread */
     if (pthread_create(&ls[0].tid, NULL, server_func, (void *) ls))
         die_with_error("Thread not created");
-
-    while(running) { /* run forever */
-        struct sockaddr addr;
-        socklen_t addrlen;
+    
+    struct sockaddr addr;
+    socklen_t addrlen;    
+    while(1) { /* run forever */
         /* Create a client socket for an accepted connection */
         int cid = accept(sock , &addr , &addrlen );
         if (cid <= 0)
@@ -67,7 +66,7 @@ int main(int argc, char** argv)
 void broadcast(int from, char* sent) {
     int i;
     for (i = 1; i < len; i++) {
-        if (from != i) {
+        if (from != i && ls[i].cid != 0) {
             sendMessage(ls[i].cid, sent);
         }
     }
@@ -78,13 +77,20 @@ void broadcast(int from, char* sent) {
 
 int recievedDataFrom(int from, char* message) {
     char sent[MAX_STRING_LEN];
-    if (strcmp("exit", message) == 0) {
-        sprintf(sent, "<%s> exits the chat...", ls[from].name);
-        close(ls[from].cid);
+    int isExit = strcmp("exit", message) == 0;
+    if (isExit) {
+        if (from == 0) {
+            sprintf(sent, "<%s>(The server) closed the chat...", ls[from].name);
+        } else {
+            sprintf(sent, "<%s> exits the chat...", ls[from].name);
+            close(ls[from].cid);
+            ls[from].cid = 0;
+        }
     } else {
         sprintf(sent, "<%s> : %s", ls[from].name, message);
     }
     broadcast(from, sent);
+    return isExit;
 }
 
 void *thread_func(void *data_struct)
@@ -125,9 +131,8 @@ void *server_func(void *data_struct)
         if (recievedDataFrom(index, input_string))
             break;
     }
-    printf("disconnected!\n");
-    
-    pthread_exit(NULL);
+    exit(0);
+    // pthread_exit(NULL);
 }
 
 /*

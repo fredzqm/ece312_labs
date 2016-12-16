@@ -1,4 +1,4 @@
-
+#include <stdlib.h>
 #include "io.h"
 
 void requestName(char* buffer) {
@@ -20,7 +20,7 @@ void readMessage(char* buffer) {
 
 void printRecievedMessage(char* message) {
     printf("\r                                           \r");
-    printf("%s\n", message, name);
+    printf("%s\n", message);
     printPrompt();
 }
 
@@ -37,7 +37,9 @@ int recieveMessage(int sock, char* buffer) {
     return 0;
 }
 
-void die_with_error(char *error_message) {
+void die_with_error(char* error_message) {
   perror(error_message);
   exit(1);
 }
+
+

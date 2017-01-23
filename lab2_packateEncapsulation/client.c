@@ -1,11 +1,14 @@
 /************* UDP CLIENT CODE *******************/
 
 #include <stdio.h>
+#include <ctype.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
+#include <netinet/in.h> 
+#include <unistd.h>
 #include <string.h>
+#include <arpa/inet.h>
 
-#define SERVER "127.0.0.1"
+#define SERVER_ADDRESS "127.0.0.1"
 #define MESSAGE "hello there"
 #define PORT 9876
 #define BUFSIZE 1024
@@ -42,7 +45,7 @@ int main() {
     memset((char*) &serverAddr, 0, sizeof (serverAddr));
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_port = htons(PORT);
-    serverAddr.sin_addr.s_addr = inet_addr(SERVER);
+    serverAddr.sin_addr.s_addr = inet_addr(SERVER_ADDRESS);
     memset(serverAddr.sin_zero, '\0', sizeof serverAddr.sin_zero);
 
     /* send a message to the server */

@@ -4,6 +4,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <unistd.h>
+#include <ctype.h>
 #include <stdlib.h>
 
 #define PORT 9876

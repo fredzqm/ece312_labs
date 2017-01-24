@@ -8,8 +8,8 @@ all: client
 %.o: %.c %.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-client: client.o udp.o
-	$(CC) $(CFLAGS) client.o udp.o -o client 
+client: client.o rhp.o udp.o
+	$(CC) $(CFLAGS) client.o rhp.o udp.o -o client 
 
 clean:
 	rm -rf *.o client server *.gch a.out* server.dSYM

@@ -14,4 +14,5 @@
 
 
 int talkToServer(char* message, int messageLen, char* buffer);
+
 void printAsHex(char* buffer, int returnLen);

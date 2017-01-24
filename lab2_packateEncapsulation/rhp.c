@@ -38,7 +38,7 @@ int writeRHP(RHP* rhp, char* buffer) {
     buffer[offset++] = 0xff & (dstPort_length>>8);
     buffer[offset++] = 0xff & srcPort;
     buffer[offset++] = 0xff & (srcPort>>8);
-    for (i = payloadLen-1; i >= 0; i--)
+    for (i = 0; i < payloadLen; i++)
         buffer[offset++] = payload[i];
     if (offset % 2 == 1)
         buffer[offset++] = 0;
@@ -84,3 +84,8 @@ int computeCheckSum(char* data, int length) {
     return checkSum;
 }
 
+
+void printRHP(RHP* x) {
+    printf("\ttype: %d\n\tdstPort_length: %d\n\tsrcPort: %d \n\tpayload: %s\n", 
+        x->type, x->dstPort_length, x->srcPort, x->payload);
+}

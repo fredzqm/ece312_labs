@@ -16,10 +16,14 @@ int main() {
     rhp.payload = message;
     rhp.payloadLen = strlen(message);
     
+    printRHP(&rhp);
+
     sendRHPMessage(&rhp, &resp);
 
     resp.payload[resp.payloadLen] = 0;
-    printf("RHP resp:\n\ttype: %d\n\tdstPort_length: %d\n\tsrcPort: %d \n\tpayload: %s\n", 
-        resp.type, resp.dstPort_length, resp.srcPort, resp.payload);
+
+    printRHP(&resp);
+
+    free(resp.payload);
 }
 

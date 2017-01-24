@@ -16,3 +16,4 @@ typedef struct
  */
 void sendRHPMessage(RHP* sent, RHP* response);
 
+void printRHP(RHP* x);

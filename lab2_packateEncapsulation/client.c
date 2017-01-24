@@ -1,65 +1,86 @@
 /************* UDP CLIENT CODE *******************/
 
-#include <stdio.h>
-#include <ctype.h>
-#include <sys/socket.h>
-#include <netinet/in.h> 
-#include <unistd.h>
-#include <string.h>
-#include <arpa/inet.h>
-
-#define SERVER_ADDRESS "127.0.0.1"
-#define MESSAGE "hello there"
-#define PORT 9876
-#define BUFSIZE 1024
+#include "client.h"
+#include "udp.h"
 
 int main() {
-    int clientSocket, nBytes;
-    char buffer[BUFSIZE];
-    struct sockaddr_in clientAddr, serverAddr;
+    char* message = "Hello";
 
-    /*Create UDP socket*/
-    if ((clientSocket = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-        perror("cannot create socket");
-        return 0;
-    }
+    printAsHex(message, strlen(message));
+    printf("%s\n", message);
 
-    /* Bind to an arbitrary return address.
-     * Because this is the client side, we don't care about the address 
-     * since no application will initiate communication here - it will 
-     * just send responses 
-     * INADDR_ANY is the IP address and 0 is the port (allow OS to select port) 
-     * htonl converts a long integer (e.g. address) to a network representation 
-     * htons converts a short integer (e.g. port) to a network representation */
-    memset((char *) &clientAddr, 0, sizeof (clientAddr));
-    clientAddr.sin_family = AF_INET;
-    clientAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    clientAddr.sin_port = htons(0);
+    RHP rhp, resp;
 
-    if (bind(clientSocket, (struct sockaddr *) &clientAddr, sizeof (clientAddr)) < 0) {
-        perror("bind failed");
-        return 0;
-    }
+    rhp.type = 1;
+    rhp.dstPort_length = strlen(message);
+    rhp.srcPort = 682;
+    rhp.payload = message;
+    rhp.payloadLen = strlen(message);
+    
+    sendRHPMessage(&rhp, &resp);
 
-    /* Configure settings in server address struct */
-    memset((char*) &serverAddr, 0, sizeof (serverAddr));
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_port = htons(PORT);
-    serverAddr.sin_addr.s_addr = inet_addr(SERVER_ADDRESS);
-    memset(serverAddr.sin_zero, '\0', sizeof serverAddr.sin_zero);
-
-    /* send a message to the server */
-    if (sendto(clientSocket, MESSAGE, strlen(MESSAGE), 0,
-            (struct sockaddr *) &serverAddr, sizeof (serverAddr)) < 0) {
-        perror("sendto failed");
-        return 0;
-    }
-
-    /* Receive message from server */
-    nBytes = recvfrom(clientSocket, buffer, BUFSIZE, 0, NULL, NULL);
-
-    printf("Received from server: %s\n", buffer);
-
-    close(clientSocket);
-    return 0;
+    resp.payload[resp.payloadLen] = 0;
+    printf("RHP resp:\n\ttype: %d\n\tdstPort_length: %d\n\tsrcPort: %d \n\tpayload: %s\n", 
+        resp.type, resp.dstPort_length, resp.srcPort, resp.payload);
 }
+
+void sendRHPMessage(RHP* sent, RHP* response) {
+    char sentBuffer[BUFSIZE], recieveBuffer[BUFSIZE];
+    
+    int offset = writeRHP(sent, sentBuffer);
+
+    printf("set bytes as hex:\n");
+    printAsHex(sentBuffer, offset);
+
+    int nBytes = talkToServer(sentBuffer, offset, recieveBuffer);
+    
+    recieveBuffer[nBytes] = 0;
+    printf("recieve bytes as hex:\n");
+    printAsHex(recieveBuffer, nBytes);
+
+}
+
+int writeRHP(RHP* rhp, char* buffer) {
+    char type = rhp->type;
+    int dstPort_length = rhp->dstPort_length;
+    int srcPort = rhp->srcPort;
+    char* payload = rhp->payload;
+    int payloadLen = rhp->payloadLen;
+
+    int offset = 0, i;
+    buffer[offset++] = type;
+    buffer[offset++] = 0xff & dstPort_length;
+    buffer[offset++] = 0xff & (dstPort_length>>8);
+    buffer[offset++] = 0xff & srcPort;
+    buffer[offset++] = 0xff & (srcPort>>8);
+    for (i = payloadLen-1; i >= 0; i--)
+        buffer[offset++] = payload[i];
+    if (offset % 2 == 1)
+        buffer[offset++] = 0;
+
+    // compute the checksum
+    int checksum = computeCheckSum(buffer, offset);
+
+    buffer[offset++] = 0xff & checksum;
+    buffer[offset++] = 0xff & (checksum>>8);
+    // return the size of header
+    return offset;
+}
+
+void readRHP(RHP* rhp, char* buffer, int length) {
+
+}
+
+int computeCheckSum(char* data, int length) {
+    long checkSum = 0;
+    int i;
+    for (i = 0; i < length; i+=2) {
+        int a = (0xff00 & (data[i] * 256)) + (0xff & data[i+1]);
+        checkSum += a;
+    }
+    checkSum = (0xffff & (checkSum >> 16)) + (0xffff & checkSum);
+    checkSum = checkSum ^ 0xffff;
+    return checkSum;
+}
+
+

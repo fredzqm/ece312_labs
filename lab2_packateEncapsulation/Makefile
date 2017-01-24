@@ -2,19 +2,15 @@
 
 CC = gcc
 CFLAGS = -g -std=gnu99 -O -Wall -Wfatal-errors
-DEPS = io.h client.h server.h
 
-all: client server
+all: client
 
-%.o: %.c ${DEPS}
+%.o: %.c %.h
 	$(CC) -c -o $@ $< $(CFLAGS)
 
-client: client.o
-	$(CC) $(CFLAGS) client.o -o client 
-
-server: server.o
-	$(CC) $(CFLAGS) server.o -o server
+client: client.o udp.o
+	$(CC) $(CFLAGS) client.o udp.o -o client 
 
 clean:
-	rm -rf *.o client server *.gch a.out*
+	rm -rf *.o client server *.gch a.out* server.dSYM
 	

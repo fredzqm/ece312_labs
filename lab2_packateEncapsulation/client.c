@@ -3,10 +3,7 @@
 #include "rhp.h"
 
 int main() {
-    char* message = "Hello";
-
-    printAsHex(message, strlen(message));
-    printf("%s\n", message);
+    char* message = "h";
 
     RHP rhp, resp;
 
@@ -16,13 +13,7 @@ int main() {
     rhp.payload = message;
     rhp.payloadLen = strlen(message);
     
-    printRHP(&rhp);
-
     sendRHPMessage(&rhp, &resp);
-
-    resp.payload[resp.payloadLen] = 0;
-
-    printRHP(&resp);
 
     free(resp.payload);
 }

@@ -13,6 +13,15 @@
 #define BUFSIZE 1024
 
 
+/**
+you can send message to server. 
+message is the information you watn to send, 
+messagelen is the length of the message
+buffer is space in memory to receive the message.
+
+return the bytes number of the message received.
+*/
 int talkToServer(char* message, int messageLen, char* buffer);
+
 
 void printAsHex(char* buffer, int returnLen);

@@ -14,3 +14,5 @@ client: client.o rhp.o udp.o
 clean:
 	rm -rf *.o client server *.gch a.out* server.dSYM
 	
+run: all
+	./client

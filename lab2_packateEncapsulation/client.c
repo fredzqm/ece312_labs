@@ -5,8 +5,7 @@
 int main() {
     char* message = "h";
 
-    RHP rhp, resp;
-
+    RHMP rhp, resp;
     rhp.type = 1;
     rhp.dstPort_length = strlen(message);
     rhp.srcPort = 682;
@@ -14,6 +13,11 @@ int main() {
     rhp.payloadLen = strlen(message);
     
     sendRHPMessage(&rhp, &resp);
+
+    RHMP send, respones;
+    rhmp.type = REQUEST_MESSAGE;
+    rhmp.commID = 312;
+    rhmp.length = 0;
 
     free(resp.payload);
 }

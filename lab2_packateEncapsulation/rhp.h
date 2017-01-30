@@ -1,5 +1,6 @@
 #include "udp.h"
-
+#define RHMP_Message 0
+#define CONTROL_Message 1
 
 typedef struct
 {

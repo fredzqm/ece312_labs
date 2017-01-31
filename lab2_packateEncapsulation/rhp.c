@@ -17,8 +17,9 @@ void sendRHPMessage(RHP* sentRHP, RHP* responseRHP) {
     
     printAsHex(recieveBuffer, nBytes);
 
-    if (readRHP(responseRHP, recieveBuffer, nBytes) < 0)
-        printf("Checksum failed\n");
+    if (readRHP(responseRHP, recieveBuffer, nBytes) < 0) {
+        
+    }
 }
 
 int writeRHP(RHP* rhp, char* buffer) {
@@ -51,8 +52,10 @@ int writeRHP(RHP* rhp, char* buffer) {
 
 int readRHP(RHP* rhp, char* buffer, int length) {
     int checksum = computeCheckSum(buffer, length);
-    if (checksum != 0xffff) // check the checksum
+    if (checksum != 0xffff) {
+        printf("Checksum failed = %04x\n", checksum);
         return -1;
+    }
 
     int offset = 0, i;
     char type = buffer[offset++];

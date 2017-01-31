@@ -48,8 +48,8 @@ int writeRHMP(RHMP* rhmp, char* buffer) {
     char* payload = rhmp->payload;
     
     int offset = 0;
-    buffer[offset++] = ((type << 2) & 0x0fc) | (commID & 0x03);
-    buffer[offset++] = (commID>>2) & 0xff;
+    buffer[offset++] = (type & 0x3f) | ((commID << 8) & 0xc0);
+    buffer[offset++] =  (commID>>2) & 0xff;
     buffer[offset++] = length;
     int i;
     for (i = 0; i < length; i++)
@@ -59,7 +59,7 @@ int writeRHMP(RHMP* rhmp, char* buffer) {
 
 int readRHMP(RHMP* rhMp, char* buffer) {
     char a = buffer[0], b = buffer[1];
-    char type = (a >> 2) & 0x3f;
+    char type = a & 0x3f;
     int commID = ((a<<8) & 0x30) | (b & 0xff);
     int length = buffer[2];
     int i;

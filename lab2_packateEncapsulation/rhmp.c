@@ -42,7 +42,7 @@ int writeRHMP(RHMP* rhmp, char* buffer) {
     char* payload = rhmp->payload;
     
     int offset = 0;
-    buffer[offset++] = (type & 0x3f) | ((commID << 8) & 0xc0);
+    buffer[offset++] = (type & 0x3f) | ((commID << 6) & 0xc0);
     buffer[offset++] =  (commID>>2) & 0xff;
     buffer[offset++] = length;
     int i;
@@ -52,9 +52,9 @@ int writeRHMP(RHMP* rhmp, char* buffer) {
 }
 
 int readRHMP(RHMP* rhMp, char* buffer) {
-    char a = buffer[0], b = buffer[1];
+    int a = buffer[0], b = buffer[1];
     char type = a & 0x3f;
-    int commID = ((a<<8) & 0x30) | (b & 0xff);
+    int commID = ((a>>6) & 0x03) | ((b<<2) & 0x3fc);
     int length = buffer[2];
     int i;
     for (i = 0; i < length-3; i++)
@@ -68,8 +68,20 @@ int readRHMP(RHMP* rhMp, char* buffer) {
 
 
 void printRHMP(RHMP *x, FILE* f) {
-    fprintf(f, "\ttype: %d\n\tcommitID: %d\n\tlength: %d \n\tpayload: %s\n", 
-        x->type, x->commID, x->length, x->payload);
+    char* type;
+    if (x->type == ID_REQUEST) {
+        type = "ID_REQUEST";
+    } else if (x->type == ID_RESPONSE) {
+        type = "ID_RESPONSE";
+    } else if (x->type == MESSAGE_REQUEST) {
+        type = "MESSAGE_REQUEST";
+    } else if (x->type == MESSAGE_RESPONSE) {
+        type = "MESSAGE_RESPONSE";
+    } else {
+        type = "Invalid";
+    } 
+    fprintf(f, "\ttype: %s\n\tcommitID: %d\n\tlength: %d \n\tpayload: %s\n", 
+        type, x->commID, x->length, x->payload);
 }
 
 

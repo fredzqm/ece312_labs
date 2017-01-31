@@ -89,13 +89,16 @@ int computeCheckSum(char* data, int length) {
 
 
 void printRHP(RHP *x, FILE* f) {
+    char* type;
     if (x->type == RHMP_Message) {
-        fprintf(f, "\ttype: %s\n", "RHMP_Message");
+        type = "RHMP_Message";
     } else if (x->type == CONTROL_Message) {
-        fprintf(f, "\ttype: %s\n", "CONTROL_Message");
+        type = "CONTROL_Message";
+    } else {
+        type = "Invalid";
     }
-    fprintf(f, "\tdstPort_length: %d\n\tsrcPort: %d \n\tpayload: %s\n", 
-        x->dstPort_length, x->srcPort, x->payload);
+    fprintf(f, "\ttype: %s\n\tdstPort_length: %d\n\tsrcPort: %d \n\tpayload: %s\n", 
+        type, x->dstPort_length, x->srcPort, x->payload);
 }
 
 

@@ -4,6 +4,7 @@
 
 int main() {
 // 1. send hello RHP message
+    printf("----------------------------------- send hello RHP message\n");
     char* message = "hello";
     int len = strlen(message) + 1;
     RHP rhpTo, rhpFrom;
@@ -13,20 +14,43 @@ int main() {
     memcpy(rhpTo.payload, message, len);
     rhpTo.payloadLen = len;
     
-    printRHP(&rhpTo, stdout);
     sendRHPMessage(&rhpTo, &rhpFrom);
     printRHP(&rhpFrom, stdout);
 
 // 2. request message
-    RHMP rhmpsent1, rhmprecieved1;
-    rhmpsent1.type = MESSAGE_REQUEST;
-    rhmpsent1.commID = 312;
-    rhmpsent1.length = 0;
-    rhmpsent1.rhp.type = RHMP_Message;
-    rhmpsent1.rhp.dstPort_length = 105; 
-    rhmpsent1.rhp.srcPort = 674;
+    printf("----------------------------------- request message\n");
+    RHMP rhmpsent, rhmprecieved;
+    rhmpsent.type = MESSAGE_REQUEST;
+    rhmpsent.commID = 312;
+    rhmpsent.length = 0;
 
-    sendRHMPMessage(&rhmpsent1, &rhmprecieved1);
+    rhmpsent.rhp.type = RHMP_Message;
+    rhmpsent.rhp.dstPort_length = 105; 
+    rhmpsent.rhp.srcPort = 674;
+
+    printRHMP(&rhmpsent, stdout);
+
+    sendRHMPMessage(&rhmpsent, &rhmprecieved);
+    printRHP(&rhmprecieved.rhp, stdout);
+    printRHMP(&rhmprecieved, stdout);
+
+
+// 3. request id
+    printf("----------------------------------- request id\n");
+    rhmpsent.type = ID_REQUEST;
+    rhmpsent.commID = 312;
+    rhmpsent.length = 0;
+
+    rhmpsent.rhp.type = RHMP_Message;
+    rhmpsent.rhp.dstPort_length = 105; 
+    rhmpsent.rhp.srcPort = 674;
+
+    printRHMP(&rhmpsent, stdout);
+    
+    sendRHMPMessage(&rhmpsent, &rhmprecieved);
+    printRHP(&rhmprecieved.rhp, stdout);
+    printRHMP(&rhmprecieved, stdout);
+
 }
 
 

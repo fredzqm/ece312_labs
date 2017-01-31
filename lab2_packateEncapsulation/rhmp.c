@@ -58,7 +58,7 @@ void printRHMP(RHMP *x, FILE* f) {
     } else {
         type = "Invalid";
     } 
-    fprintf(f, "\ttype: %s\n\tcommitID: %d\n\tlength: %d \n\tpayload: %s\n", 
+    fprintf(f, "RHMP:\n\ttype: %s\n\tcommitID: %d\n\tlength: %d \n\tpayload: %s\n", 
         type, x->commID, x->length, x->payload);
 }
 

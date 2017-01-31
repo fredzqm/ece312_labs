@@ -11,12 +11,8 @@ int sendRHPMessage(RHP* sentRHP, RHP* responseRHP) {
     
     int offset = writeRHP(sentRHP, sentBuffer);
 
-    printAsHex(sentBuffer, offset);
-
     int nBytes = talkToServer(sentBuffer, offset, recieveBuffer);
     
-    printAsHex(recieveBuffer, nBytes);
-
     return readRHP(responseRHP, recieveBuffer, nBytes);
 }
 
@@ -95,7 +91,7 @@ void printRHP(RHP *x, FILE* f) {
     } else {
         type = "Invalid";
     }
-    fprintf(f, "\ttype: %s\n\tdstPort_length: %d\n\tsrcPort: %d \n\tpayload: %s\n", 
+    fprintf(f, "RHP:\n\ttype: %s\n\tdstPort_length: %d\n\tsrcPort: %d \n\tpayload: %s\n", 
         type, x->dstPort_length, x->srcPort, x->payload);
 }
 

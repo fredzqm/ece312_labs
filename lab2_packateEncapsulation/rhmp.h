@@ -33,4 +33,4 @@ typedef struct
  */
 void sendRHMPMessage(RHMP* sent, RHMP* response);
 
-void printRHMP(RHMP* x);
+void printRHMP(RHMP *x, FILE* f);

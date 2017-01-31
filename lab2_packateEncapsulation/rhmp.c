@@ -2,23 +2,17 @@
 
 int writeRHMP(RHMP* rhmp, char* buffer);
 int readRHMP(RHMP* rhmp, char* buffer);
-/*
- * talk to the server with the given messge.
- * return the number of bytes recieved.
- */
-
-void printRHMP(RHMP* x);
 
 
 void sendRHMPMessage(RHMP* sentRHMP, RHMP* responseRHMP) {
     char sentBuffer[BUFSIZE], recievedBuffer[BUFSIZE];
 
     printf("RHMP sent content:\n");
-    printRHMP(sentRHMP);
+    printRHMP(sentRHMP, stdout);
 
     int offset = writeRHMP(sentRHMP, sentBuffer);
 
-		RHP rhp, resp;
+	RHP rhp, resp;
     rhp.type = RHMP_Message;
     rhp.dstPort_length = 105; 
     rhp.srcPort = 674;
@@ -28,17 +22,17 @@ void sendRHMPMessage(RHMP* sentRHMP, RHMP* responseRHMP) {
     resp.payload = recievedBuffer;
     
     printf("RHP sent content:\n");
-    printRHP(&rhp);
+    printRHP(&rhp, stdout);
 
     sendRHPMessage(&rhp, &resp);
 
     printf("RHP content:\n");
-    printRHP(&resp);
+    printRHP(&resp, stdout);
 
     readRHMP(responseRHMP, resp.payload);
     
     printf("RHMP content:\n");
-    printRHMP(responseRHMP);
+    printRHMP(responseRHMP, stdout);
 }
 
 int writeRHMP(RHMP* rhmp, char* buffer) {
@@ -73,8 +67,8 @@ int readRHMP(RHMP* rhMp, char* buffer) {
 }
 
 
-void printRHMP(RHMP *x) {
-    printf("\ttype: %d\n\tcommitID: %d\n\tlength: %d \n\tpayload: %s\n", 
+void printRHMP(RHMP *x, FILE* f) {
+    fprintf(f, "\ttype: %d\n\tcommitID: %d\n\tlength: %d \n\tpayload: %s\n", 
         x->type, x->commID, x->length, x->payload);
 }
 

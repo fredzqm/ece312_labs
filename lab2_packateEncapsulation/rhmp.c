@@ -1,7 +1,7 @@
 #include "rhmp.h"
 
 int writeRHMP(RHMP* rhmp, char* buffer);
-int readRHMP(RHMP* rhmp, char* buffer, int length);
+int readRHMP(RHMP* rhmp, char* buffer);
 /*
  * talk to the server with the given messge.
  * return the number of bytes recieved.
@@ -11,107 +11,71 @@ void printRHMP(RHMP* x);
 
 
 void sendRHMPMessage(RHMP* sentRHMP, RHMP* responseRHMP) {
-    char sentBuffer[BUFSIZE], recieveBuffer[BUFSIZE];
-    
-    int offset = writeRHMP(sentRHMP, sentBuffer);
+    char sentBuffer[BUFSIZE], recievedBuffer[BUFSIZE];
 
+    printf("RHMP sent content:\n");
     printRHMP(sentRHMP);
 
-    printf("set bytes as hex:\n");
-    printAsHex(sentBuffer, offset);
-
-
-void sendRHPMessage(RHP* sent, RHP* response);
-		
+    int offset = writeRHMP(sentRHMP, sentBuffer);
 
 		RHP rhp, resp;
     rhp.type = RHMP_Message;
     rhp.dstPort_length = 105; 
-    rhp.srcPort = 682;
-    rhp.payload = message;
-    rhp.payloadLen = strlen(message);
+    rhp.srcPort = 674;
+    rhp.payload = sentBuffer;
+    rhp.payloadLen = offset;
+
+    resp.payload = recievedBuffer;
     
+    printf("RHP sent content:\n");
+    printRHP(&rhp);
+
     sendRHPMessage(&rhp, &resp);
-    
-    
-    printf("recieve bytes as hex:\n");
-    printAsHex(recieveBuffer, nBytes);
 
-    if (readRHMP(responseRHMP, recieveBuffer, nBytes) < 0)
-        printf("Checksum failed\n");
+    printf("RHP content:\n");
+    printRHP(&resp);
 
+    readRHMP(responseRHMP, resp.payload);
+    
+    printf("RHMP content:\n");
     printRHMP(responseRHMP);
 }
 
-int writeRHMP(RHMP* rhMp, char* buffer) {
+int writeRHMP(RHMP* rhmp, char* buffer) {
     char type = rhmp->type;
-    int dstPort_length = rhMp->dstPort_length;
-    int srcPort = rhMp->srcPort;
-    char* payload = rhMp->payload;
-    int payloadLen = rhMp->payloadLen;
-
-    int offset = 0, i;
-    buffer[offset++] = type;
-    buffer[offset++] = 0xff & dstPort_length;
-    buffer[offset++] = 0xff & (dstPort_length>>8);
-    buffer[offset++] = 0xff & srcPort;
-    buffer[offset++] = 0xff & (srcPort>>8);
-    for (i = 0; i < payloadLen; i++)
+    int commID = rhmp->commID;
+    char length = rhmp->length;
+    char* payload = rhmp->payload;
+    
+    int offset = 0;
+    buffer[offset++] = ((type << 2) & 0x0fc) | (commID & 0x03);
+    buffer[offset++] = (commID>>2) & 0xff;
+    buffer[offset++] = length;
+    int i;
+    for (i = 0; i < length; i++)
         buffer[offset++] = payload[i];
-    if (offset % 2 == 1)
-        buffer[offset++] = 0;
-
-    // compute the checksum
-    int checksum = computeCheckSum(buffer, offset);
-    checksum = checksum ^ 0xffff;
-
-    buffer[offset++] = 0xff & (checksum>>8);
-    buffer[offset++] = 0xff & checksum;
-
     return offset;
 }
 
-int readRHMP(RHMP* rhMp, char* buffer, int length) {
-    int checksum = computeCheckSum(buffer, length);
-    if (checksum != 0xffff) // check the checksum
-        return -1;
-
-    int offset = 0, i;
-    char type = buffer[offset++];
-    int dstPort_length = buffer[offset++];
-    dstPort_length = dstPort_length + (0xff00 & (buffer[offset++] << 8));
-    int srcPort = buffer[offset++];
-    srcPort = srcPort + (0xff00 & (buffer[offset++] << 8));
-    char* payload = (char*) malloc(sizeof(char) * (dstPort_length+1));
-    for (i = 0; i < dstPort_length; i++)
-        payload[i] = buffer[offset+i];
+int readRHMP(RHMP* rhMp, char* buffer) {
+    char a = buffer[0], b = buffer[1];
+    char type = (a >> 2) & 0x3f;
+    int commID = ((a<<8) & 0x30) | (b & 0xff);
+    int length = buffer[2];
+    int i;
+    for (i = 0; i < length-3; i++)
+        rhMp->payload[i] = buffer[3+i];
 
     rhMp->type = type;
-    rhMp->dstPort_length = dstPort_length;
-    rhMp->srcPort = srcPort;
-    rhMp->payload = payload;
-    rhMp->payloadLen = dstPort_length;
-
+    rhMp->commID = commID;
+    rhMp->length = length;
     return 0;
 }
 
 
-int computeCheckSum(char* data, int length) {
-    unsigned int a = 0, b = 0;
-    int i;
-    for (i = 0; i < length; i+=2) {
-        a += 0xff & ((int) data[i]);
-        b += 0xff & ((int) data[i+1]);
-    }
-    long checkSum = a * 256 + b;
-    checkSum = ((checkSum >> 16) & 0xffff) + (checkSum & 0xffff);
-    return checkSum;
-}
-
-
 void printRHMP(RHMP *x) {
-    printf("\ttype: %d\n\tdstPort_length: %d\n\tsrcPort: %d \n\tpayload: %s\n", 
-        x->type, x->dstPort_length, x->srcPort, x->payload);
+    printf("\ttype: %d\n\tcommitID: %d\n\tlength: %d \n\tpayload: %s\n", 
+        x->type, x->commID, x->length, x->payload);
 }
 
 

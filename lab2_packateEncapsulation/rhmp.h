@@ -1,10 +1,9 @@
 #include "rhp.h"
 
-#define REQUEST_ID 2
+#define ID_REQUEST 2
+#define ID_RESPONSE 4
 #define MESSAGE_REQUEST 8
-#define RESPOND_ID 4
-#define REQUEST_MESSAGE 16
-
+#define MESSAGE_RESPONSE 16
 
 
 /**

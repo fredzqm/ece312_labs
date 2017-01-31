@@ -11,20 +11,14 @@ void sendRHPMessage(RHP* sentRHP, RHP* responseRHP) {
     
     int offset = writeRHP(sentRHP, sentBuffer);
 
-    printRHP(sentRHP);
-
-    printf("set bytes as hex:\n");
     printAsHex(sentBuffer, offset);
 
     int nBytes = talkToServer(sentBuffer, offset, recieveBuffer);
     
-    printf("recieve bytes as hex:\n");
     printAsHex(recieveBuffer, nBytes);
 
     if (readRHP(responseRHP, recieveBuffer, nBytes) < 0)
         printf("Checksum failed\n");
-
-    printRHP(responseRHP);
 }
 
 int writeRHP(RHP* rhp, char* buffer) {
@@ -66,15 +60,13 @@ int readRHP(RHP* rhp, char* buffer, int length) {
     dstPort_length = dstPort_length + (0xff00 & (buffer[offset++] << 8));
     int srcPort = buffer[offset++];
     srcPort = srcPort + (0xff00 & (buffer[offset++] << 8));
-    char* payload = (char*) malloc(sizeof(char) * (dstPort_length+1));
     for (i = 0; i < dstPort_length; i++)
-        payload[i] = buffer[offset+i];
+        rhp->payload[i] = buffer[offset+i];
 
     rhp->type = type;
     rhp->dstPort_length = dstPort_length;
     rhp->srcPort = srcPort;
-    rhp->payload = payload;
-    rhp->payloadLen = dstPort_length;
+    rhp->payloadLen = length-offset-2;
 
     return 0;
 }

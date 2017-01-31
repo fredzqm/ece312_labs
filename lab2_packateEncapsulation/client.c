@@ -1,24 +1,36 @@
 /************* UDP CLIENT CODE *******************/
 
-#include "rhp.h"
+#include "rhmp.h"
 
 int main() {
-    char* message = "h";
+    char recieveBuffer[BUFSIZE];
 
-    RHMP rhp, resp;
-    rhp.type = 1;
-    rhp.dstPort_length = strlen(message);
-    rhp.srcPort = 682;
-    rhp.payload = message;
-    rhp.payloadLen = strlen(message);
+// 1. send hello RHP message
+    // char* message = "hello";
+    // RHP rhpTo, rhpFrom;
+    // rhpTo.type = CONTROL_Message;
+    // rhpTo.dstPort_length = strlen(message) + 1; 
+    // rhpTo.srcPort = 674;
+    // rhpTo.payload = message;
+    // rhpTo.payloadLen = strlen(message) + 1;
     
-    sendRHPMessage(&rhp, &resp);
+    // rhpFrom.payload = recieveBuffer;
+    // printRHP(&rhpTo);
+    // sendRHPMessage(&rhpTo, &rhpFrom);
+    // printRHP(&rhpFrom);
 
-    RHMP send, respones;
-    rhmp.type = REQUEST_MESSAGE;
-    rhmp.commID = 312;
-    rhmp.length = 0;
+// 2. request message
+    RHMP rhmpsent1, rhmprecieved1;
+    rhmpsent1.type = MESSAGE_REQUEST;
+    rhmpsent1.commID = 312;
+    rhmpsent1.length = 0;
 
-    free(resp.payload);
+    rhmprecieved1.payload = recieveBuffer;
+
+    sendRHMPMessage(&rhmpsent1, &rhmprecieved1);
 }
 
+
+
+
+    

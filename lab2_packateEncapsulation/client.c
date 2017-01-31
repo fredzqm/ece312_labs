@@ -3,29 +3,28 @@
 #include "rhmp.h"
 
 int main() {
-    char recieveBuffer[BUFSIZE];
-
 // 1. send hello RHP message
-    // char* message = "hello";
-    // RHP rhpTo, rhpFrom;
-    // rhpTo.type = CONTROL_Message;
-    // rhpTo.dstPort_length = strlen(message) + 1; 
-    // rhpTo.srcPort = 674;
-    // rhpTo.payload = message;
-    // rhpTo.payloadLen = strlen(message) + 1;
+    char* message = "hello";
+    int len = strlen(message) + 1;
+    RHP rhpTo, rhpFrom;
+    rhpTo.type = CONTROL_Message;
+    rhpTo.dstPort_length = len; 
+    rhpTo.srcPort = 674;
+    memcpy(rhpTo.payload, message, len);
+    rhpTo.payloadLen = len;
     
-    // rhpFrom.payload = recieveBuffer;
-    // printRHP(&rhpTo);
-    // sendRHPMessage(&rhpTo, &rhpFrom);
-    // printRHP(&rhpFrom);
+    printRHP(&rhpTo, stdout);
+    sendRHPMessage(&rhpTo, &rhpFrom);
+    printRHP(&rhpFrom, stdout);
 
 // 2. request message
     RHMP rhmpsent1, rhmprecieved1;
     rhmpsent1.type = MESSAGE_REQUEST;
     rhmpsent1.commID = 312;
     rhmpsent1.length = 0;
-
-    rhmprecieved1.payload = recieveBuffer;
+    rhmpsent1.rhp.type = RHMP_Message;
+    rhmpsent1.rhp.dstPort_length = 105; 
+    rhmpsent1.rhp.srcPort = 674;
 
     sendRHMPMessage(&rhmpsent1, &rhmprecieved1);
 }

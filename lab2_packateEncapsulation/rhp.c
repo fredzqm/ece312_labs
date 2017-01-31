@@ -6,7 +6,7 @@ int readRHP(RHP* rhp, char* buffer, int length);
 int computeCheckSum(char* data, int length);
 
 
-void sendRHPMessage(RHP* sentRHP, RHP* responseRHP) {
+int sendRHPMessage(RHP* sentRHP, RHP* responseRHP) {
     char sentBuffer[BUFSIZE], recieveBuffer[BUFSIZE];
     
     int offset = writeRHP(sentRHP, sentBuffer);
@@ -17,9 +17,7 @@ void sendRHPMessage(RHP* sentRHP, RHP* responseRHP) {
     
     printAsHex(recieveBuffer, nBytes);
 
-    if (readRHP(responseRHP, recieveBuffer, nBytes) < 0) {
-        
-    }
+    return readRHP(responseRHP, recieveBuffer, nBytes);
 }
 
 int writeRHP(RHP* rhp, char* buffer) {

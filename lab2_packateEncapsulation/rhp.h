@@ -7,7 +7,7 @@ typedef struct
 	char type;
 	int dstPort_length;
 	int srcPort;
-	char* payload;
+	char payload[BUFSIZE];
 	int payloadLen;
 } RHP;
 
@@ -15,6 +15,6 @@ typedef struct
  * talk to the server with the given messge.
  * return the number of bytes recieved.
  */
-void sendRHPMessage(RHP* sent, RHP* response);
+int sendRHPMessage(RHP* sent, RHP* response);
 
 void printRHP(RHP *x, FILE* f);

@@ -24,7 +24,8 @@ typedef struct
 	char type;
 	int commID;
 	char length;
-	char* payload;
+	char payload[BUFSIZE];
+	RHP rhp;
 } RHMP;
 
 /*

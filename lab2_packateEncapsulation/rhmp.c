@@ -5,34 +5,12 @@ int readRHMP(RHMP* rhmp, char* buffer);
 
 
 void sendRHMPMessage(RHMP* sentRHMP, RHMP* responseRHMP) {
-    char sentBuffer[BUFSIZE], recievedBuffer[BUFSIZE];
 
-    printf("RHMP sent content:\n");
-    printRHMP(sentRHMP, stdout);
+    sentRHMP->rhp.payloadLen = writeRHMP(sentRHMP, sentRHMP->rhp.payload);
 
-    int offset = writeRHMP(sentRHMP, sentBuffer);
+    sendRHPMessage(&sentRHMP->rhp, &responseRHMP->rhp);
 
-	RHP rhp, resp;
-    rhp.type = RHMP_Message;
-    rhp.dstPort_length = 105; 
-    rhp.srcPort = 674;
-    rhp.payload = sentBuffer;
-    rhp.payloadLen = offset;
-
-    resp.payload = recievedBuffer;
-    
-    printf("RHP sent content:\n");
-    printRHP(&rhp, stdout);
-
-    sendRHPMessage(&rhp, &resp);
-
-    printf("RHP content:\n");
-    printRHP(&resp, stdout);
-
-    readRHMP(responseRHMP, resp.payload);
-    
-    printf("RHMP content:\n");
-    printRHMP(responseRHMP, stdout);
+    readRHMP(responseRHMP, responseRHMP->payload);
 }
 
 int writeRHMP(RHMP* rhmp, char* buffer) {

@@ -10,7 +10,7 @@ void sendRHMPMessage(RHMP* sentRHMP, RHMP* responseRHMP) {
 
     sendRHPMessage(&sentRHMP->rhp, &responseRHMP->rhp);
 
-    readRHMP(responseRHMP, responseRHMP->payload);
+    readRHMP(responseRHMP, responseRHMP->rhp.payload);
 }
 
 int writeRHMP(RHMP* rhmp, char* buffer) {

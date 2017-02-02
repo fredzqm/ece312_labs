@@ -83,7 +83,6 @@ int computeCheckSum(char* data, int length) {
 
 
 void printRHP(FILE* f, RHP *x) {
-    char* type;
     if (x->type == CONTROL_Message) {
         fprintf(f, "RHP:\n\ttype: CONTROL_Message\n\tdstPort: %d\n\tsrcPort: %d \n\tpayload: %s\n", 
             x->dstPort_length, x->srcPort, x->payload);
@@ -93,7 +92,7 @@ void printRHP(FILE* f, RHP *x) {
         printAsHex(f, x->payload, x->payloadLen);
         fprintf(f, "\n");
     } else {
-        fprintf(f, "Invalid PHP type");
+        fprintf(f, "Invalid RHP type %02x", x->type);
     }
 }
 

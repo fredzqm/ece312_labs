@@ -84,7 +84,7 @@ int computeCheckSum(char* data, int length) {
 
 void printRHP(FILE* f, RHP *x) {
     if (x->type == CONTROL_Message) {
-        fprintf(f, "RHP:\n\ttype: CONTROL_Message\n\tdstPort: %d\n\tsrcPort: %d \n\tpayload: %s\n", 
+        fprintf(f, "RHP:\n\ttype: CONTROL_Message\n\tdstPort: %d\n\tsrcPort: %d \n\tmessage: %s\n", 
             x->dstPort_length, x->srcPort, x->payload);
     } else if (x->type == RHMP_Message) {
         fprintf(f, "RHP:\n\ttype: RHMP_Message\n\tlength: %d\n\tsrcPort: %d\n\tpayload: ", 

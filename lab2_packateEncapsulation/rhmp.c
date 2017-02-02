@@ -44,13 +44,13 @@ void printRHMP(FILE* f, RHMP *x) {
         id = (id << 8) | (((int)x->payload[2]) & 0xff);
         id = (id << 8) | (((int)x->payload[1]) & 0xff);
         id = (id << 8) | (((int)x->payload[0]) & 0xff);
-        fprintf(f, "RHMP:\n\ttype: ID_RESPONSE\n\tcommitID: %d\n\tlength: %d \n\tpayload: %d\n", 
+        fprintf(f, "RHMP:\n\ttype: ID_RESPONSE\n\tcommitID: %d\n\tlength: %d \n\tID: %d\n", 
             x->commID, x->length, id);
     } else if (x->type == MESSAGE_REQUEST) {
         fprintf(f, "RHMP:\n\ttype: MESSAGE_REQUEST\n\tcommitID: %d\n\tlength: %d \n", 
             x->commID, x->length);
     } else if (x->type == MESSAGE_RESPONSE) {
-        fprintf(f, "RHMP:\n\ttype: MESSAGE_RESPONSE\n\tcommitID: %d\n\tlength: %d \n\tpayload: %s\n", 
+        fprintf(f, "RHMP:\n\ttype: MESSAGE_RESPONSE\n\tcommitID: %d\n\tlength: %d \n\tMessage: %s\n", 
             x->commID, x->length, x->payload);
     } else {
         fprintf(f, "Invalid RHMP type %02x", x->type);

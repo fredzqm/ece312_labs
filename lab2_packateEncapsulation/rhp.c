@@ -82,17 +82,19 @@ int computeCheckSum(char* data, int length) {
 }
 
 
-void printRHP(RHP *x, FILE* f) {
+void printRHP(FILE* f, RHP *x) {
     char* type;
-    if (x->type == RHMP_Message) {
-        type = "RHMP_Message";
-    } else if (x->type == CONTROL_Message) {
-        type = "CONTROL_Message";
+    if (x->type == CONTROL_Message) {
+        fprintf(f, "RHP:\n\ttype: CONTROL_Message\n\tdstPort: %d\n\tsrcPort: %d \n\tpayload: %s\n", 
+            x->dstPort_length, x->srcPort, x->payload);
+    } else if (x->type == RHMP_Message) {
+        fprintf(f, "RHP:\n\ttype: RHMP_Message\n\tlength: %d\n\tsrcPort: %d\n\tpayload: ", 
+            x->dstPort_length, x->srcPort);
+        printAsHex(f, x->payload, x->payloadLen);
+        fprintf(f, "\n");
     } else {
-        type = "Invalid";
+        fprintf(f, "Invalid PHP type");
     }
-    fprintf(f, "RHP:\n\ttype: %s\n\tdstPort_length: %d\n\tsrcPort: %d \n\tpayload: %s\n", 
-        type, x->dstPort_length, x->srcPort, x->payload);
 }
 
 

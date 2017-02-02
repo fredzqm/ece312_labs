@@ -1,7 +1,7 @@
 #include "rhmp.h"
 
 int writeRHMP(RHMP* rhmp, char* buffer);
-int readRHMP(RHMP* rhmp, char* buffer);
+void readRHMP(RHMP* rhmp, char* buffer);
 
 
 void sendRHMPMessage(RHMP* sentRHMP, RHMP* responseRHMP) {
@@ -14,38 +14,28 @@ void sendRHMPMessage(RHMP* sentRHMP, RHMP* responseRHMP) {
 }
 
 int writeRHMP(RHMP* rhmp, char* buffer) {
-    char type = rhmp->type;
-    int commID = rhmp->commID;
-    char length = rhmp->length;
-    char* payload = rhmp->payload;
-    
     int offset = 0;
-    buffer[offset++] = (type & 0x3f) | ((commID << 6) & 0xc0);
-    buffer[offset++] =  (commID>>2) & 0xff;
-    buffer[offset++] = length;
+    buffer[offset++] = (rhmp->type & 0x3f) | ((rhmp->commID << 6) & 0xc0);
+    buffer[offset++] =  (rhmp->commID>>2) & 0xff;
+    buffer[offset++] = rhmp->length;
     int i;
-    for (i = 0; i < length; i++)
-        buffer[offset++] = payload[i];
+    for (i = 0; i < rhmp->length; i++)
+        buffer[offset++] = rhmp->payload[i];
     return offset;
 }
 
-int readRHMP(RHMP* rhMp, char* buffer) {
+void readRHMP(RHMP* rhMp, char* buffer) {
     int a = buffer[0], b = buffer[1];
-    char type = a & 0x3f;
-    int commID = ((a>>6) & 0x03) | ((b<<2) & 0x3fc);
-    int length = buffer[2];
+    rhMp->type = a & 0x3f;
+    rhMp->commID = ((a>>6) & 0x03) | ((b<<2) & 0x3fc);
+    rhMp->length = buffer[2];
     int i;
-    for (i = 0; i < length-3; i++)
+    for (i = 0; i < rhMp->length; i++)
         rhMp->payload[i] = buffer[3+i];
-
-    rhMp->type = type;
-    rhMp->commID = commID;
-    rhMp->length = length;
-    return 0;
 }
 
 
-void printRHMP(RHMP *x, FILE* f) {
+void printRHMP(FILE* f, RHMP *x) {
     char* type;
     if (x->type == ID_REQUEST) {
         type = "ID_REQUEST";

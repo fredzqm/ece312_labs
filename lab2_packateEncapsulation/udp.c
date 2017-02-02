@@ -54,14 +54,10 @@ int talkToServer(char* message, int messageLen, char* buffer) {
 
 
 
-void printAsHex(char* buffer, int returnLen) {
-    printf("There are %d bytes", returnLen);
-    for (int i = 0; i < returnLen; i++) {
+void printAsHex(FILE* f, char* buffer, int length) {
+    for (int i = 0; i < length; i++) {
         if (i % 2 == 0)
-            printf(" ");
-        if (i % 8 == 0)
-            printf("\n");
-        printf("%02x", buffer[i] & 0xff);
+            fprintf(f, " ");
+        fprintf(f, "%02x", (int) (buffer[i] & 0xff));
     }
-    printf("\n");
 }

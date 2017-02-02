@@ -17,4 +17,4 @@ typedef struct
  */
 void sendRHPMessage(RHP* sent, RHP* response);
 
-void printRHP(RHP *x, FILE* f);
+void printRHP(FILE* f, RHP *x);

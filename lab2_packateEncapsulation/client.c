@@ -15,7 +15,7 @@ int main() {
     rhpTo.payloadLen = len;
     
     sendRHPMessage(&rhpTo, &rhpFrom);
-    printRHP(&rhpFrom, stdout);
+    printRHP(stdout, &rhpFrom);
 
 // 2. request message
     printf("----------------------------------- request message\n");
@@ -28,11 +28,9 @@ int main() {
     rhmpsent.rhp.dstPort_length = 105; 
     rhmpsent.rhp.srcPort = 674;
 
-    printRHMP(&rhmpsent, stdout);
-
     sendRHMPMessage(&rhmpsent, &rhmprecieved);
-    printRHP(&rhmprecieved.rhp, stdout);
-    printRHMP(&rhmprecieved, stdout);
+    printRHP(stdout, &rhmprecieved.rhp);
+    printRHMP(stdout, &rhmprecieved);
 
 
 // 3. request id
@@ -45,11 +43,9 @@ int main() {
     rhmpsent.rhp.dstPort_length = 105; 
     rhmpsent.rhp.srcPort = 674;
 
-    printRHMP(&rhmpsent, stdout);
-    
     sendRHMPMessage(&rhmpsent, &rhmprecieved);
-    printRHP(&rhmprecieved.rhp, stdout);
-    printRHMP(&rhmprecieved, stdout);
+    printRHP(stdout, &rhmprecieved.rhp);
+    printRHMP(stdout, &rhmprecieved);
 
 }
 

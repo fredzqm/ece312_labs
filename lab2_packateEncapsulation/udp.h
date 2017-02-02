@@ -24,4 +24,4 @@ return the bytes number of the message received.
 int talkToServer(char* message, int messageLen, char* buffer);
 
 
-void printAsHex(char* buffer, int returnLen);
+void printAsHex(FILE* f, char* buffer, int length);

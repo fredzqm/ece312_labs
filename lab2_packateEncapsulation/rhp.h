@@ -15,6 +15,6 @@ typedef struct
  * talk to the server with the given messge.
  * return the number of bytes recieved.
  */
-int sendRHPMessage(RHP* sent, RHP* response);
+void sendRHPMessage(RHP* sent, RHP* response);
 
 void printRHP(RHP *x, FILE* f);

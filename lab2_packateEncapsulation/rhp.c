@@ -6,14 +6,20 @@ int readRHP(RHP* rhp, char* buffer, int length);
 int computeCheckSum(char* data, int length);
 
 
-int sendRHPMessage(RHP* sentRHP, RHP* responseRHP) {
+void sendRHPMessage(RHP* sentRHP, RHP* responseRHP) {
     char sentBuffer[BUFSIZE], recieveBuffer[BUFSIZE];
     
     int offset = writeRHP(sentRHP, sentBuffer);
 
-    int nBytes = talkToServer(sentBuffer, offset, recieveBuffer);
-    
-    return readRHP(responseRHP, recieveBuffer, nBytes);
+    int nBytes;
+    while (1) {
+        nBytes = talkToServer(sentBuffer, offset, recieveBuffer);
+        int checksum = computeCheckSum(recieveBuffer, nBytes);
+        if (checksum == 0xffff) {
+            break;
+        }
+    }
+    readRHP(responseRHP, recieveBuffer, nBytes);
 }
 
 int writeRHP(RHP* rhp, char* buffer) {
@@ -45,12 +51,6 @@ int writeRHP(RHP* rhp, char* buffer) {
 }
 
 int readRHP(RHP* rhp, char* buffer, int length) {
-    int checksum = computeCheckSum(buffer, length);
-    if (checksum != 0xffff) {
-        printf("Checksum failed = %04x\n", checksum);
-        return -1;
-    }
-
     int offset = 0, i;
     char type = buffer[offset++];
     int dstPort_length = buffer[offset++];
